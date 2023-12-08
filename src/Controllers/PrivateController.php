@@ -4,7 +4,7 @@
  *
  * @category Private
  * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @version  CVS:1.0.0
  * @link     http://
@@ -16,7 +16,7 @@ namespace Controllers;
  *
  * @category Public
  * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @link     http://
  */
@@ -26,8 +26,7 @@ abstract class PrivateController extends PublicController
     {
         $isAuthorized = \Utilities\Security::isAuthorized(
             \Utilities\Security::getUserId(),
-            $this->name,
-            'CTR'
+            $this->name
         );
         if (!$isAuthorized){
             throw new PrivateNoAuthException();
@@ -48,9 +47,21 @@ abstract class PrivateController extends PublicController
     }
     public function __construct()
     {
-        parent::__construct();
+        $this->name = get_class($this);
         $this->_isAuthenticated();
         $this->_isAuthorized();
 
+        $layoutFile = \Utilities\Context::getContextByKey("PRIVATE_LAYOUT");
+        if ($layoutFile !== "") {
+            \Utilities\Context::setContext(
+                "layoutFile",
+                $layoutFile
+            );
+        }
+
+        \Utilities\Nav::setNavContext();
+
     }
 }
+
+?>

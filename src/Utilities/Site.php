@@ -9,13 +9,21 @@ class Site
         $donenv = new \Utilities\DotEnv("parameters.env");
         \Utilities\Context::setArrayToContext($donenv->load());
         date_default_timezone_set(\Utilities\Context::getContextByKey("TIMEZONE"));
-        \Utilities\Context::setContext('CURRENT_YEAR', date("Y"));
     }
     public static function getPageRequest()
     {
-        $pageRequest = Context::getContextByKey("PUBLIC_DEFAULT_CONTROLLER");
-        if (\Utilities\Security::isLogged()) {
-            $pageRequest = Context::getContextByKey("PRIVATE_DEFAULT_CONTROLLER");
+        $pageRequest = "index";
+        if (\Utilities\Security::isLogged()) 
+        {
+            $usuario = \Dao\Security\Security::getUsuariobyId(\Utilities\Security::getUserId());
+            
+            if(!empty($usuario))
+            {
+                if($usuario["UsuarioTipo"] !== "PBL")
+                {
+                    $pageRequest = "admin\\admin";
+                }
+            }
         }
         if (isset($_GET["page"])) {
             $pageRequest = str_replace(array("_", "-", "."), "\\", $_GET["page"]);
@@ -23,22 +31,16 @@ class Site
         Context::setArrayToContext($_GET);
         Context::setContext("request_uri", $_SERVER["REQUEST_URI"]);
         return "Controllers\\" . $pageRequest;
-        //  \\Controllers\\rpts\\reportusers 
     }
     public static function redirectTo($url)
     {
-        if (Context::getContextByKey("USE_URLREWRITE") == "1") {
-            header("Location:" . \Views\Renderer::rewriteUrl($url));
-        } else {
-            header("Location:" . $url);
-        }
-
+        header("Location:".$url);
         die();
     }
     public static function redirectToWithMsg($url, $msg)
     {
-        echo '<script>alert("' . $msg . '");';
-        echo ' window.location.assign("' . $url . '");</script>';
+        echo '<script>alert("'.$msg. '");';
+        echo ' window.location.assign("'.$url.'");</script>';
         die();
     }
     public static function addLink($href)
@@ -71,10 +73,5 @@ class Site
         }
         \Utilities\Context::setContext("EndScripts", $tmpSrcs);
     }
-    public static function logError($ex, $errorCode)
-    {
-        error_log($ex);
-        \Utilities\Context::setContext("ERROR_CODE", $errorCode);
-        \Utilities\Context::setContext("ERROR_MSG", $ex);
-    }
 }
+?>

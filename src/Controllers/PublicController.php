@@ -4,7 +4,7 @@
  *
  * @category Public
  * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @version  CVS:1.0.0
  * @link     http://
@@ -16,7 +16,7 @@ namespace Controllers;
  *
  * @category Public
  * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @link     http://
  */
@@ -29,17 +29,6 @@ abstract class PublicController implements IController
     public function __construct()
     {
         $this->name = get_class($this);
-        \Utilities\Nav::setPublicNavContext();
-        if (\Utilities\Security::isLogged()){
-            $layoutFile = \Utilities\Context::getContextByKey("PRIVATE_LAYOUT");
-            if ($layoutFile !== "") {
-                \Utilities\Context::setContext(
-                    "layoutFile",
-                    $layoutFile
-                );
-                \Utilities\Nav::setNavContext();
-            }
-        }
     }
     /**
      * Return name of instantiated class
@@ -53,7 +42,7 @@ abstract class PublicController implements IController
     /**
      * Returns if http method is a post or not
      *
-     * @return bool
+     * @return boolean
      */
     protected function isPostBack()
     {
@@ -61,3 +50,5 @@ abstract class PublicController implements IController
     }
 
 }
+
+?>

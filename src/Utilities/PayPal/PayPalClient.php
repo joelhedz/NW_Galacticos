@@ -33,5 +33,6 @@ class PayPalClient
         } else {
             return new SandboxEnvironment($clientId, $clientSecret);
         }
+        
     }
 }

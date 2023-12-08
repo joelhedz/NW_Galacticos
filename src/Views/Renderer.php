@@ -5,7 +5,7 @@
  *
  * @category Utility
  * @package  Views
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @version  CVS:1.0.0
  * @link     http://
@@ -17,7 +17,7 @@ namespace Views;
  *
  * @category Utility
  * @package  Views
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
+ * @author   Grupo 1
  * @license  MIT http://
  * @link     http://
  */
@@ -51,7 +51,7 @@ class Renderer
         }
         //union de variables de sessión
         $datos = array_merge($_SESSION, $datos);
-        if (isset($datos["layoutFile"]) && $layoutFile === "layout.view.tpl") {
+        if (isset($datos["layoutFile"])) {
             $layoutFile = $datos["layoutFile"];
         }
         if (strpos($layoutFile, ".view.tpl") === false) {
@@ -70,10 +70,6 @@ class Renderer
                     $tmphtml,
                     $htmlContent
                 );
-                //Cargar Otras plantillas
-                if(strpos($htmlContent, "{{include")){
-                    $htmlContent = self::loadPartials($htmlContent);
-                }
                 //Limpiar Saltos de Pagina
                 if (strpos($htmlContent, "<pre>")) {
                 } else {
@@ -87,11 +83,7 @@ class Renderer
                 $htmlResult = self::_renderTemplate($template_code, $datos);
 
                 if ($render) {
-                    if($datos["USE_URLREWRITE"] == "1") {
-                        echo self::rewriteUrl($htmlResult);
-                    } else {
-                        echo $htmlResult;
-                    }
+                    echo $htmlResult;
                 } else {
                     return $htmlResult;
                 }
@@ -384,80 +376,6 @@ class Renderer
 
         return $template_code;
     }
-
-    private static function loadPartials($htmlTemplate)
-    {
-        $regexp_array = array(
-            'includes '      => '(\{\{include [\w\/]*\}\})',
-        );
-
-        $tag_regexp = "/" . join("|", $regexp_array) . "/";
-
-        //split the code with the tags regexp
-        $template_code = preg_split(
-            $tag_regexp,
-            $htmlTemplate,
-            -1,
-            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
-        );
-        $htmlBuffer = "";
-        foreach($template_code as $block) {
-            if (strpos($block, "include")) {
-                $filePath = trim(
-                        str_replace("}}", "", str_replace("{{include", "", $block))
-                ). ".view.tpl";;
-                $viewsPath = "src/Views/templates/";
-                if (file_exists($viewsPath . $filePath)) {
-                    $htmlContent = file_get_contents($viewsPath . $filePath);
-                    $htmlBuffer .= $htmlContent;
-                } else {
-                    $htmlBuffer .= $block;
-                }
-            } else {
-                $htmlBuffer .= $block;
-            }
-        }
-        return $htmlBuffer;
-    }
-
-    public static function rewriteUrl($htmlTemplate)
-    {
-        $regexp_array = array(
-            'page '      => '(index.php\??[\w=&]*)',
-        );
-
-        $tag_regexp = "/" . join("|", $regexp_array) . "/";
-
-        //split the code with the tags regexp
-        $template_code = preg_split(
-            $tag_regexp,
-            $htmlTemplate,
-            -1,
-            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
-        );
-        $htmlBuffer = "";
-        $basedir = \Utilities\Context::getContextByKey("BASE_DIR");
-        foreach ($template_code as $node) {
-            if (strpos($node, "index.php?page=")  !== false) {
-                $pageStart = strpos($node, "=") + 1;
-                $pageEnd = strpos($node, "&")?:strlen($node);
-                $pageValueLength = $pageEnd - $pageStart;
-                $page = substr($node, $pageStart, $pageValueLength);
-                $query = substr($node, $pageEnd + 1);
-
-                $url = "/" . $basedir . "/" . str_replace(array("_",".","-"), "/", $page);
-                $url .= strlen($query)?"/?".$query:"/";
-                $htmlBuffer .= $url;
-            } else {
-                if ($node == "index.php") {
-                    $htmlBuffer .= "/" . $basedir . "/index";
-                } else {
-                    $htmlBuffer .= $node;
-                }
-            }
-        }
-        return $htmlBuffer;
-    }
     /**
      * Constructor privado evita instancia de esta clase
      */
@@ -466,3 +384,5 @@ class Renderer
 
     }
 }
+
+?>

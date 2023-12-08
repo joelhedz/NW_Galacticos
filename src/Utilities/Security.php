@@ -2,7 +2,6 @@
 
 namespace Utilities;
 
-use Dao\Security\Security as DaoSecurity;
 class Security {
     private function __construct()
     {
@@ -15,6 +14,8 @@ class Security {
     public static function logout()
     {
         unset($_SESSION["login"]);
+        session_unset(); 
+        session_destroy(); 
     }
     public static function login($userId, $userName, $userEmail)
     {
@@ -43,24 +44,27 @@ class Security {
         }
         return 0;
     }
-    public static function isAuthorized($userId, $function, $type = 'FNC'):bool
+    public static function isAuthorized($userId, $function):bool
     {
         if (\Utilities\Context::getContextByKey("DEVELOPMENT") == "1") {
-            $functionInDb = DaoSecurity::getFeature($function);
+            $functionInDb = \Dao\Security\Security::getFeature($function);
             if (!$functionInDb) {
-                DaoSecurity::addNewFeature($function, $function, "ACT", $type);
+                \Dao\Security\Security::addNewFeature($function, $function, "ACT", "CTR");
             }
         }
-        return DaoSecurity::getFeatureByUsuario($userId, $function);
+        return \Dao\Security\Security::getFeatureByUsuario($userId, $function);
     }
     public static function isInRol($userId, $rol):bool
     {
         if (\Utilities\Context::getContextByKey("DEVELOPMENT") == "1") {
-            $rolInDb = DaoSecurity::getRol($rol);
+            $rolInDb = \Dao\Security\Security::getRol($rol);
             if (!$rolInDb) {
-                DaoSecurity::addNewRol($rol, $rol, "ACT");
+                \Dao\Security\Security::addNewRol($rol, $rol, "ACT");
             }
         }
-        return DaoSecurity::isUsuarioInRol($userId, $rol);
+        return \Dao\Security\Security::getRolesByUsuario($userId, $rol);
     }
 }
+
+
+?>
